@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,9 +22,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
@@ -33,7 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+    private static final int PERMISSION_REQUEST_LOCATION  = 34;
     TextView tempTextView;
     TextView locationTextView;
     TextView  weatherTextView;
@@ -58,101 +54,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         locationTextView = findViewById(R.id.locationTextView);
         weatherTextView = findViewById(R.id.weathertextView);
         requestQueue = Volley.newRequestQueue(mLayout.getContext().getApplicationContext());
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+       // mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
     }
-
 
     @Override
     protected void onStart() {
         super.onStart();
         checkInternetPermission();
-        if(!checkLocationPermissions()){
-            requestLocationPermissions();
-        }
-
-    }
-
-
-    private boolean checkLocationPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestLocationPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(TAG, "Displaying permission rationale to provide additional context.");
-
-            showSnackbar(R.string.permission_rationale, android.R.string.ok,
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // Request permission
-                            startLocationPermissionRequest();
-                        }
-                    });
-
-        }
-        else {
-            Log.i(TAG, "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            startLocationPermissionRequest();
-        }
-    }
-
-    @SuppressWarnings("MissingPermission")
-    private void getLastLocation() {
-        mFusedLocationClient.getLastLocation()
-                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            mLastLocation = task.getResult();
-                            mLatitude = mLastLocation.getLatitude();
-                            mLongitude = mLastLocation.getLongitude();
-
-
-
-                        } else {
-                            Log.w(TAG, "getLastLocation:exception", task.getException());
-                            showSnackbar(getString(R.string.no_location_detected));
-                        }
-                    }
-                });
-    }
-
-
-    private void showSnackbar(final String text) {
-        View container = findViewById(R.id.main_layout);
-        if (container != null) {
-            Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();
-        }
-    }
-
-    private void showSnackbar(final int mainTextStringId, final int actionStringId,
-                              View.OnClickListener listener) {
-        Snackbar.make(findViewById(android.R.id.content),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(actionStringId), listener).show();
-    }
-
-
-
-    private void startLocationPermissionRequest() {
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                REQUEST_PERMISSIONS_REQUEST_CODE);
     }
 
     private void checkInternetPermission() {
@@ -199,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if(requestCode == PERMISSION_REQUEST_INTERNET){
+        if (requestCode == PERMISSION_REQUEST_INTERNET) {
             //Request for internet permission
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted.
@@ -220,9 +131,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void makeNetworkRequest() {
 
 
-        String url;
-        url = String.format("api.openweathermap.org/data/2.5/weather?lat=%f"
-                + "&lon=%d" + "&appid=016a17805cf72b8426b9651f731700f5", mLatitude, mLongitude);
+        String url = "http://api.openweathermap.org/data/2.5/weather?q=London&appid=016a17805cf72b8426b9651f731700f5";
+
 
         // Request a string response from the provided URL.
         JsonRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
