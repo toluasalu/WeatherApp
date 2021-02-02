@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="internet_permission_granted">Internet Permission Granted</string>
+    <string name="internet_permission_denied">Internet Permission Denied</string>
+    <string name="camera_permission_available">Internet Permission already available</string>
+    <string name="ok">OK</string>
+    <string name="internet_access_required">Internet Acess Required</string>
+    <string name="internet_unavailable">Internet Access Unavailable</string>
+    <string name="data_retrieved">Data retrieved sucessfully</string>
+    <string name="process_failed">Data retrieval failed</string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="no_location_detected">No location detected. Make sure location is enabled on the device.</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="internet_permission_granted">Internet Permission Granted</string>
+    <string name="internet_permission_denied">Internet Permission Denied</string>
+    <string name="data_retrieved">Data retrieved sucessfully</string>
+    <string name="process_failed">Data retrieval failed</string>
+    <string name="no_location_detected">No location detected. Make sure location is enabled on the device.</string>
+</resources>
