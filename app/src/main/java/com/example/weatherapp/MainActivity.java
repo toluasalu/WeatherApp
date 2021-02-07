@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     TextView tempTextView;
     TextView locationTextView;
     TextView  weatherTextView;
+    ImageView backgroundImage;
   private static  final String TAG = MainActivity.class.getSimpleName();
   private  static final int PERMISSION_REQUEST_INTERNET = 0;
   private View mLayout;
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         tempTextView = findViewById(R.id.tempTextView);
         locationTextView = findViewById(R.id.locationTextView);
         weatherTextView = findViewById(R.id.weathertextView);
+        backgroundImage = findViewById(R.id.imageView);
         requestQueue = Volley.newRequestQueue(mLayout.getContext().getApplicationContext());
 
        // mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -70,13 +73,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         // Check if the Internet permission has been granted
         if (ActivityCompat.checkSelfPermission(mLayout.getContext().getApplicationContext(), Manifest.permission.INTERNET)
                 == PackageManager.PERMISSION_GRANTED) {
-            // Permission is already available, start camera preview
+            // Internet Permission is already available, go ahead and make network request
             Snackbar.make(mLayout,
                     R.string.camera_permission_available,
                     Snackbar.LENGTH_SHORT).show();
             makeNetworkRequest();
         } else {
             // Permission is missing and must be requested.
+            Snackbar.make(mLayout,
+                    R.string.requesting_internet_permission,
+                    Snackbar.LENGTH_SHORT).show();
             requestInternetPermission();
         }
     }
@@ -143,15 +149,31 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                            JSONObject main =  response.getJSONObject("main");
                            JSONArray weather = response.getJSONArray("weather");
                            JSONObject weatherResponseObject = weather.getJSONObject(0);
-                           String weatherInfo = weatherResponseObject.getString("description").toUpperCase();
+                           String weatherInfo = weatherResponseObject.getString("main").toUpperCase();
                            String location = response.getString("name");
                            String temp = main.getString("temp");
                            tempTextView.setText(temp);
                            locationTextView.setText(location);
                            weatherTextView.setText(weatherInfo);
-
+                           setBackgroundImage(weatherInfo);
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        }
+                    }
+
+                    private void setBackgroundImage(String weatherInformation) {
+                        switch (weatherInformation){
+                            case "CLOUDS": backgroundImage.setImageResource(R.drawable.dark_stormy_clouds);
+                                   break;
+
+                            case "RAIN":  backgroundImage.setImageResource(R.drawable.outdoor_child_playing_joy_cheerful);
+                                 break;
+
+                            case "CLEAR": backgroundImage.setImageResource(R.drawable.blue_sky_with_puffy_white_clouds);
+                                  break;
+
+                            case "DRIZZLE": backgroundImage.setImageResource(R.drawable._0424679);
+                                  break;
                         }
                     }
                 }, new Response.ErrorListener() {
