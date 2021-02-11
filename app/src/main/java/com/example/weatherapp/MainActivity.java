@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void makeNetworkRequest() {
 
 
-        String url = "http://api.openweathermap.org/data/2.5/weather?lat=8.9943827&lon=7.5861802&appid=016a17805cf72b8426b9651f731700f5";
+        String url = "http://api.openweathermap.org/data/2.5/weather?lat=8.9943827&lon=7.5861802&appid=016a17805cf72b8426b9651f731700f5&units=metric";
 
 
 
@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void makeNetworkRequest(double latitude, double longitude) {
 
 
-        String restUrl = "http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&appid=016a17805cf72b8426b9651f731700f5";
+        String restUrl = "http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&appid=016a17805cf72b8426b9651f731700f5&units=metric";
         String url = createUrlwithLocationParams(restUrl, latitude,longitude);
 
 
