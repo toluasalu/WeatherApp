@@ -2,12 +2,18 @@ package com.example.weatherapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -38,15 +44,15 @@ import java.text.MessageFormat;
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     TextView tempTextView;
     TextView locationTextView;
-    TextView  weatherTextView;
+    TextView weatherTextView;
     ImageView backgroundImage;
-  private static  final String TAG = MainActivity.class.getSimpleName();
-  private  static final int PERMISSION_REQUEST_INTERNET = 0;
-  private static final int PERMISSION_REQUEST_LOCATION = 1;
-  private View mLayout;
-  private RequestQueue requestQueue;
-  private double mLatitude;
-  private double mLongitude;
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int PERMISSION_REQUEST_INTERNET = 0;
+    private static final int PERMISSION_REQUEST_LOCATION = 1;
+    private View mLayout;
+    private RequestQueue requestQueue;
+    private double mLatitude;
+    private double mLongitude;
     /**
      * Provides the entry point to the Fused Location Provider API.
      */
@@ -70,6 +76,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        ComponentName componentName = new ComponentName(this, SearchActivity.class);
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(componentName));
+
+        return true;
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         checkLocationPermission();
@@ -79,19 +100,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void checkLocationPermission() {
         //Check if the Location Permission has been granted
-        if(ActivityCompat.checkSelfPermission(mLayout.getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(mLayout.getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             //Location Permission is already available
             Snackbar.make(mLayout,
                     R.string.location_permission_available,
                     Snackbar.LENGTH_SHORT).show();
             getLastLocation();
-        }  else {
+        } else {
             //Permission is missing and must be requested
             Snackbar.make(mLayout,
                     R.string.requesting_location_permission,
                     Snackbar.LENGTH_SHORT).show();
-               requestLocationPermission();
+            requestLocationPermission();
 
         }
     }
@@ -123,25 +144,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
-       mFusedLocationClient.getLastLocation().addOnCompleteListener(this,new OnCompleteListener<Location>() {
-           @Override
-           public void onComplete(@NonNull Task<Location> task) {
-               if (task.isSuccessful() && task.getResult() != null) {
-                   mLastLocation = task.getResult();
-                   mLatitude = mLastLocation.getLatitude();
-                   mLongitude = mLastLocation.getLongitude();
-                   Snackbar.make(mLayout,
-                           R.string.location_detected,
-                           Snackbar.LENGTH_LONG).show();
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(this, new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    mLastLocation = task.getResult();
+                    mLatitude = mLastLocation.getLatitude();
+                    mLongitude = mLastLocation.getLongitude();
+                    Snackbar.make(mLayout,
+                            R.string.location_detected,
+                            Snackbar.LENGTH_LONG).show();
 
-               } else {
-                   Log.w(TAG, "getLastLocation:exception", task.getException());
-                   Snackbar.make(mLayout,
-                           R.string.no_location_detected,
-                           Snackbar.LENGTH_LONG).show();
-               }
-           }
-       });
+                } else {
+                    Log.w(TAG, "getLastLocation:exception", task.getException());
+                    Snackbar.make(mLayout,
+                            R.string.no_location_detected,
+                            Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
 
     }
 
@@ -153,9 +174,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Snackbar.make(mLayout,
                     R.string.camera_permission_available,
                     Snackbar.LENGTH_SHORT).show();
-            if(mLongitude > 0 && mLatitude > 0){
+            if (mLongitude > 0 && mLatitude > 0) {
                 makeNetworkRequest(mLatitude, mLongitude);
-            }  else {
+            } else {
                 makeNetworkRequest();
             }
 
@@ -204,9 +225,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 Snackbar.make(mLayout, R.string.internet_permission_granted,
                         Snackbar.LENGTH_SHORT)
                         .show();
-                if(mLongitude > 0 && mLatitude > 0){
+                if (mLongitude > 0 && mLatitude > 0) {
                     makeNetworkRequest(mLatitude, mLongitude);
-                }  else {
+                } else {
                     makeNetworkRequest();
                 }
             } else {
@@ -216,15 +237,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         .show();
             }
 
-        }
-         else if(requestCode == PERMISSION_REQUEST_LOCATION){
-             //Request for Location permission
-            if(grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        } else if (requestCode == PERMISSION_REQUEST_LOCATION) {
+            //Request for Location permission
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted
                 Snackbar.make(mLayout, R.string.location_permission_granted,
                         Snackbar.LENGTH_SHORT)
                         .show();
-                     getLastLocation();
+                getLastLocation();
             } else {
                 // Permission request was denied.
                 Snackbar.make(mLayout, R.string.location_permission_denied,
@@ -240,44 +260,48 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         String url = "http://api.openweathermap.org/data/2.5/weather?lat=8.9943827&lon=7.5861802&appid=016a17805cf72b8426b9651f731700f5&units=metric";
 
 
-
         // Request a string response from the provided URL.
         JsonRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                           JSONObject main =  response.getJSONObject("main");
-                           JSONArray weather = response.getJSONArray("weather");
-                           JSONObject weatherResponseObject = weather.getJSONObject(0);
-                           String weatherInfo = weatherResponseObject.getString("main").toUpperCase();
-                           String location = response.getString("name");
-                           String temp = main.getString("temp");
-                           tempTextView.setText(temp);
-                           locationTextView.setText(location);
-                           weatherTextView.setText(weatherInfo);
-                           setBackgroundImage(weatherInfo);
+                            JSONObject main = response.getJSONObject("main");
+                            JSONArray weather = response.getJSONArray("weather");
+                            JSONObject weatherResponseObject = weather.getJSONObject(0);
+                            String weatherInfo = weatherResponseObject.getString("main").toUpperCase();
+                            String location = response.getString("name");
+                            String temp = main.getString("temp");
+                            tempTextView.setText(temp);
+                            locationTextView.setText(location);
+                            weatherTextView.setText(weatherInfo);
+                            setBackgroundImage(weatherInfo);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
 
                     private void setBackgroundImage(String weatherInformation) {
-                        switch (weatherInformation){
-                            case "CLOUDS": backgroundImage.setImageResource(R.drawable.dark_stormy_clouds);
-                                   break;
+                        switch (weatherInformation) {
+                            case "CLOUDS":
+                                backgroundImage.setImageResource(R.drawable.dark_stormy_clouds);
+                                break;
 
-                            case "RAIN":  backgroundImage.setImageResource(R.drawable.outdoor_child_playing_joy_cheerful);
-                                 break;
+                            case "RAIN":
+                                backgroundImage.setImageResource(R.drawable.outdoor_child_playing_joy_cheerful);
+                                break;
 
-                            case "CLEAR": backgroundImage.setImageResource(R.drawable.blue_sky_with_puffy_white_clouds);
-                                  break;
+                            case "CLEAR":
+                                backgroundImage.setImageResource(R.drawable.blue_sky_with_puffy_white_clouds);
+                                break;
 
-                            case "DRIZZLE": backgroundImage.setImageResource(R.drawable._0424679);
-                                  break;
-                            
-                            case "SNOW": backgroundImage.setImageResource(R.drawable._d_snowy_landscape_with_trees);
-                                  break;
+                            case "DRIZZLE":
+                                backgroundImage.setImageResource(R.drawable._0424679);
+                                break;
+
+                            case "SNOW":
+                                backgroundImage.setImageResource(R.drawable._d_snowy_landscape_with_trees);
+                                break;
 
 
                             default:
@@ -307,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
         String restUrl = "http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&appid=016a17805cf72b8426b9651f731700f5&units=metric";
-        String url = createUrlwithLocationParams(restUrl, latitude,longitude);
+        String url = createUrlwithLocationParams(restUrl, latitude, longitude);
 
 
         // Request a string response from the provided URL.
@@ -316,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONObject main =  response.getJSONObject("main");
+                            JSONObject main = response.getJSONObject("main");
                             JSONArray weather = response.getJSONArray("weather");
                             JSONObject weatherResponseObject = weather.getJSONObject(0);
                             String weatherInfo = weatherResponseObject.getString("main").toUpperCase();
@@ -332,20 +356,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     }
 
                     private void setBackgroundImage(String weatherInformation) {
-                        switch (weatherInformation){
-                            case "CLOUDS": backgroundImage.setImageResource(R.drawable.dark_stormy_clouds);
+                        switch (weatherInformation) {
+                            case "CLOUDS":
+                                backgroundImage.setImageResource(R.drawable.dark_stormy_clouds);
                                 break;
 
-                            case "RAIN":  backgroundImage.setImageResource(R.drawable.outdoor_child_playing_joy_cheerful);
+                            case "RAIN":
+                                backgroundImage.setImageResource(R.drawable.outdoor_child_playing_joy_cheerful);
                                 break;
 
-                            case "CLEAR": backgroundImage.setImageResource(R.drawable.blue_sky_with_puffy_white_clouds);
+                            case "CLEAR":
+                                backgroundImage.setImageResource(R.drawable.blue_sky_with_puffy_white_clouds);
                                 break;
 
-                            case "DRIZZLE": backgroundImage.setImageResource(R.drawable._0424679);
+                            case "DRIZZLE":
+                                backgroundImage.setImageResource(R.drawable._0424679);
                                 break;
 
-                            case "SNOW": backgroundImage.setImageResource(R.drawable._d_snowy_landscape_with_trees);
+                            case "SNOW":
+                                backgroundImage.setImageResource(R.drawable._d_snowy_landscape_with_trees);
                                 break;
 
 
@@ -373,9 +402,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
 
-
-
-    private String createUrlwithLocationParams(String url, Object ... params) {
-       return new MessageFormat(url).format(params);
+    private String createUrlwithLocationParams(String url, Object... params) {
+        return new MessageFormat(url).format(params);
     }
 }

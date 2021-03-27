@@ -21,4 +21,6 @@
     <string name="location_permission_necessity">Location Permission is necessary for app to work</string>
     <string name="location_detected">Longitude and Latitude found</string>
     <string name="search_title">Search for any city</string>
+    <string name="search_hint">Search for any city\'s weather information</string>
+    <string name="no_search_query">No search query was found</string>
 </resources>
